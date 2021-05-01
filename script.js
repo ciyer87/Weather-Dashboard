@@ -157,10 +157,10 @@ function displayCurrentUV(uvResponse) {
   if (uvResponse.current.uvi <= 2) {
     uv_value.style.backgroundColor = "green";
   }
-  else if (uvResponse.curret.uvi > 2 && uvResponse.curret.uvi <= 5) {
+  else if (uvResponse.current.uvi > 2 && uvResponse.current.uvi <= 5) {
     uv_value.style.backgroundColor = "yellow";
   }
-  else if (uvResponse.current.uvi > 5 && uvResponse.curret.uvi <= 7) {
+  else if (uvResponse.current.uvi > 5 && uvResponse.current.uvi <= 7) {
     uv_value.style.backgroundColor = "orange";
   }
   else {
