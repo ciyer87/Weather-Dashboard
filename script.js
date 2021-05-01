@@ -6,36 +6,56 @@ var weatherBody = document.querySelector("#weather-body");
 var weatherCard = document.querySelector("#current-weather");
 var forecastSection = document.querySelector("#forecast-section");
 var fivedayDiv = document.querySelector("#five-day");
-var savedSearch = JSON.parse(localStorage.getItem('history')) || [];
+var fivedayHeader=document.querySelector("#forecast-header")
+var $searchHistory = document.querySelector("#search-history");
+var $historyCard = document.querySelector("#history-card");
+var searchHistory = [];
 
-var formSubmitHandler = function (event) {
-  event.preventDefault();
-  console.log(event);
+//var savedSearch = JSON.parse(localStorage.getItem('history')) || [];
 
-};
+function updateHistory() {
+  $searchHistory.textContent = '';
+  searchHistory = JSON.parse(localStorage.getItem("searchHistory"));
+  for (var i = 0; i < searchHistory.length; i++) {
+    var pastSearch = document.createElement("li");
+    pastSearch.classList.add("list-group-item");
+    pastSearch.setAttribute("data-value", searchHistory[i]);
+    pastSearch.innerHTML = searchHistory[i];
+    $searchHistory.appendChild(pastSearch);
+  }
+  $historyCard.classList.remove("hide");
+}
 
-
-var formSubmitHandler = function (event) {
-  // prevent page from refreshing
-  event.preventDefault();
+function searchHandler(cityname) {
+  
+  //clear results divs:
+  
+  weatherBody.innerHTML = '';
+  fivedayDiv.innerHTML = '';
+  fivedayHeader.innerHTML = '';
+  
 
   // get value from input element
-  var cityname = nameInputEl.value.trim();
-  savedSearch.push(cityname);
-  localStorage.setItem('history', JSON.stringify(savedSearch));
-  console.log(cityname);
-
-  if (cityname) {
+  
     getWeather(cityname);
     getFiveDayForecast(cityname);
-
-    // clear old content
-    //repoContainerEl.textContent = "";
-    nameInputEl.value = "";
-  } else {
-    alert("Please enter a city to search");
-  }
+  
 };
+
+function addTerm(searchTerm){
+  //if there's local storage, 
+  if(localStorage.getItem("searchHistory")){
+    //get items from local storage and add them to searchHistory[]
+    searchHistory = JSON.parse(localStorage.getItem("searchHistory"));
+  }
+//either way add searchTerm to searchHistory[]
+searchHistory.push(searchTerm);
+//then store the updated searchHistory[] in local storage
+localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+
+//call the function to update search history display
+updateHistory();
+}
 
 
 var getWeather = function (city) {
@@ -65,7 +85,7 @@ var getFiveDayForecast = function (city_name) {
     .then(function (response) {
       if (response.ok) {
         response.json().then(function (forecastData) {
-         // displayForecast(forecastData);
+          // displayForecast(forecastData);
         });
       } else {
         alert("Error: " + response.statusText)
@@ -77,7 +97,7 @@ var getFiveDayForecast = function (city_name) {
 }
 
 function displayWeather(report) {
-  
+
   var temp = document.createElement("div");
   temp.textContent = "Temperature: " + report.main.temp + "°F";
 
@@ -101,13 +121,13 @@ function displayWeather(report) {
   weatherBody.appendChild(humid);
 
   weatherCard.classList.remove("hide")
-  
+
 };
 
-function currentUVSearch(cityCoords){
+function currentUVSearch(cityCoords) {
   var searchCoords = "lat=" + cityCoords.lat + "&lon=" + cityCoords.lon;
 
-  var uvUrl = 'https://api.openweathermap.org/data/2.5/onecall?' + searchCoords + '&exclude=minutely,hourly&units=imperial&appid='+ APIKey;
+  var uvUrl = 'https://api.openweathermap.org/data/2.5/onecall?' + searchCoords + '&exclude=minutely,hourly&units=imperial&appid=' + APIKey;
 
   fetch(uvUrl)
     .then(function (response) {
@@ -124,47 +144,59 @@ function currentUVSearch(cityCoords){
     .catch(function (error) {
       alert("Unable to connect to the API");
     });
-    }
+}
 
 
-    function displayCurrentUV(uvResponse){
-      //set up div for uv
-      var color_uv;
-      if (uvResponse.current.uvi < 2.0){
-        color_uv= ('style', 'background-color: green');
-      }
-      var weatherUV = document.createElement("div");
-     //weatherUV.textContent = "UV Index: " + (uvResponse.current.uvi);
-      var uv_value = document.createElement("span");
-        uv_value.textContent = uvResponse.current.uvi;
-        uv_value.style.backgroundColor = "green";
-      weatherUV.textContent = "UV Index: ";
-      weatherUV.append(uv_value);
-      
-      
+function displayCurrentUV(uvResponse) {
+  //set up div for uv
 
-    
-      //add uv to card
-      weatherBody.appendChild(weatherUV);
-      //show current weather card since last element has been added:
-    
-      weatherCard.classList.remove("hide");
-      //console.log("hi");
-    
-    }
+  var weatherUV = document.createElement("div");
 
-  function formatDate(date) {
-    var date = new Date(date * 1000);
-    return `${date.getMonth() + 1}/${date.getDate()}/${date.getUTCFullYear()}`;
+  var uv_value = document.createElement("span");
+  uv_value.textContent = uvResponse.current.uvi;
+  if (uvResponse.current.uvi <= 2) {
+    uv_value.style.backgroundColor = "green";
   }
+  else if (uvResponse.curret.uvi > 2 && uvResponse.curret.uvi <= 5) {
+    uv_value.style.backgroundColor = "yellow";
+  }
+  else if (uvResponse.current.uvi > 5 && uvResponse.curret.uvi <= 7) {
+    uv_value.style.backgroundColor = "orange";
+  }
+  else {
+    uv_value.style.backgroundColor = "red";
+  }
+  weatherUV.textContent = "UV Index: ";
+  weatherUV.append(uv_value);
+
+
+
+
+  //add uv to card
+  weatherBody.appendChild(weatherUV);
+  //show current weather card since last element has been added:
+
+  weatherCard.classList.remove("hide");
+  //console.log("hi");
+
+}
+
+function formatDate(date) {
+  var date = new Date(date * 1000);
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getUTCFullYear()}`;
+}
 //add 5 Day forecast response to page:
 function displayForecast(data) {
   console.log(data);
   let pointer = 1;
-  for (let i = 1; i < 6; i ++) {  
-    
+  var forecastHead = document.createElement("h3");
+  forecastHead.classList.add("title");
+  forecastHead.textContent = "5-Day Forecast";
+  fivedayHeader.appendChild(forecastHead);
+  for (let i = 1; i < 6; i++) {
+
     var forecastCard = document.createElement("div");
-    forecastCard.classList.add( "card", "bg-primary", "col-10", "col-lg-2", "p-0", "mx-auto", "mt-3");
+    forecastCard.classList.add("card", "bg-primary", "col-10", "col-lg-2", "p-0", "mx-auto", "mt-3");
 
     var cardBody = document.createElement("div");
     cardBody.classList.add("card-body", "text-light", "p-2");
@@ -180,14 +212,14 @@ function displayForecast(data) {
 
 
     var forecastTemp = document.createElement("div");
-      forecastTemp.textContent = "Temp: " + (data.daily[i].temp.day) + " F°";
-     
+    forecastTemp.textContent = "Temp: " + (data.daily[i].temp.day) + " F°";
+
 
     var forecastWind = document.createElement("div");
-      forecastWind.textContent = "Wind: " + (data.daily[i].wind_speed) + " " + "MPH";
+    forecastWind.textContent = "Wind: " + (data.daily[i].wind_speed) + " " + "MPH";
 
     var forecastHumid = document.createElement("div");
-      forecastHumid.textContent = "Humidity: " + (data.daily[i].humidity) + "%"; 
+    forecastHumid.textContent = "Humidity: " + (data.daily[i].humidity) + "%";
 
     cardBody.appendChild(forecastTitle);
     cardBody.appendChild(forecastIcon);
@@ -196,11 +228,29 @@ function displayForecast(data) {
     cardBody.appendChild(forecastHumid);
 
     forecastCard.appendChild(cardBody);
-    fivedayDiv.appendChild(forecastCard);  
+    fivedayDiv.appendChild(forecastCard);
 
     pointer++;
   }
 }
 forecastSection.classList.remove("hide");
 
-userFormEL.addEventListener("submit", formSubmitHandler);
+$searchHistory.addEventListener("click", function(event){
+  event.preventDefault();
+  var itemClicked = event.target;
+  if(itemClicked.matches("li")){
+    var clickSearch = itemClicked.getAttribute("data-value");
+    //i want to splice the item clicked from the array and then readd it... but since i am allowing repeated items onto the array it's difficult rn
+    //run a search with the term clicked
+    searchHandler(clickSearch);  
+  }
+});
+
+userFormEL.addEventListener("submit", function(event){
+  event.preventDefault();
+  var cityname = nameInputEl.value.trim();
+  searchHandler(cityname);
+  cityname.value = ' ';
+  addTerm(cityname);
+});
+
