@@ -9,19 +9,27 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" />
   <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
+
+  <!-- nav bar start -->
   <nav class="navbar navbar-dark bg-primary text-center">
     <h1 class="text-light m-auto">Weather Dashboard</h1>
   </nav>
+  <!-- nav bar end -->
   <div class="container-fluid">
     <div class="row">
+      
       <div class="col-12 col-md-5 col-lg-4 col-xl-3 pt-3 bg-light" id="search-div">
+        <!-- form to get city input from the user start -->
         <form class="form-inline mb-3" id="city-search">
           <h3 class="mr-3">Search for a City: </h3>
           <input type="text" class="form-control" id="search-input">
           <button type="submit" class="btn btn-primary form-control"><i class="fas fa-search"></i></button>
         </form>
+        <!-- form to get city input from the user end -->
 
+        <!-- search history card -->
         <div class="card hide" id="history-card">
             <ul class="list-group list-group-flush" id="search-history">
 
@@ -31,6 +39,7 @@
       <div class="col-12 col-md-7 col-lg-8 col-xl-9">
        
           <div class="row pt-md-3 pr-md-3 pl-md-3">
+            <!-- current weather card -->
             <div class="card hide col-12" id="current-weather">
               <!--<h3 class="hide" id="error-message">Sorry we can't find what you're looking for :(</h3>-->
               <div class="card-body" id="weather-body">
@@ -40,19 +49,15 @@
             </div>
           </div>
           <div class="row hide pt-3 p-md-3" id="forecast-section">
+            <!-- 5 day forecast -->
             <div class="col-12" id = "forecast-header">
-              <!--<h3>5-Day Forecast:</h3>-->
             </div>
             <div class="col-12">
               <div class="row d-flex justify-content-lg-between" id="five-day">
-
               </div>
-            </div>
-            
-          </div>
-        
-      </div>
-      
+            </div> 
+          </div>        
+      </div>     
     </div>
   </div>
   
